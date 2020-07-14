@@ -1,3 +1,5 @@
+import java.lang.management.ManagementFactory
+import java.lang.management.RuntimeMXBean
 import java.util.concurrent.TimeUnit
 
 // Use the pathing jar if running in windows. This is needed otherwise the classpath is too long for the idiotic windows OS
@@ -128,6 +130,36 @@ if(!name.contains('testing')) {
             options.addBooleanOption('html5', true)
         }
     }
+}
+
+task('sysProps') {
+    group 'help'
+    doLast {
+        logger.quiet('{}', System.properties.collect {"${it.key}:${it.value}"}.sort().join('\n'))
+    }
+}
+
+task('jvmArgs') {
+    group 'help'
+    doLast {
+        RuntimeMXBean runtimeMxBean2 = ManagementFactory.getRuntimeMXBean()
+        logger.quiet('{}', runtimeMxBean2.getInputArguments().join('\n'))
+    }
+}
+
+license {
+    header = file("${rootDir}/NOTICE")
+    excludes([
+        '**/*.gson',
+        '**/*.yml',
+        '**/META-INF/**',
+        '**/*.txt',
+        '**/*.json',
+        '**/*.gml',
+        '**/*.jpeg',
+        '**/*.png',
+        '**/*.xml'
+    ])
 }
 
 project.afterEvaluate {

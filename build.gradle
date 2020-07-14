@@ -146,17 +146,3 @@ grails {
 apply from: 'dependencies.gradle'
 apply from: "${rootDir}/gradle/additions/grails.gradle"
 
-license {
-    header = file("${rootDir}/NOTICE")
-    excludes([
-        '**/*.gson',
-        '**/*.yml',
-        '**/META-INF/**',
-        '**/*.txt',
-        '**/*.json',
-        '**/*.gml',
-        '**/*.jpeg',
-        '**/*.png',
-        '**/*.xml'
-    ])
-}
