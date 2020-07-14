@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.authentication.keycloak
+package uk.ac.ox.softeng.maurodatamapper.plugin.authentication.keycloak
 
 
 import grails.plugins.Plugin
