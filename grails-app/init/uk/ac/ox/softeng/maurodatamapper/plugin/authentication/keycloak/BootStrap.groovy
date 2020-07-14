@@ -15,20 +15,12 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.authentication.keycloak
+package uk.ac.ox.softeng.maurodatamapper.plugin.authentication.keycloak
 
-import uk.ac.ox.softeng.maurodatamapper.util.Utils
+class BootStrap {
 
-import grails.boot.GrailsApp
-import grails.boot.config.GrailsAutoConfiguration
-import grails.plugins.metadata.PluginSource
-import org.springframework.context.annotation.ComponentScan
-
-@PluginSource
-@ComponentScan(basePackages = ['uk.ac.ox.softeng.maurodatamapper'])
-class Application extends GrailsAutoConfiguration {
-    static void main(String[] args) {
-        Utils.outputRuntimeArgs(Application)
-        GrailsApp.run(Application, args)
+    def init = {servletContext ->
+    }
+    def destroy = {
     }
 }
