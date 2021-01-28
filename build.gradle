@@ -144,5 +144,5 @@ grails {
 }
 
 apply from: 'dependencies.gradle'
-apply from: "${rootDir}/gradle/additions/grails.gradle"
+apply from: "${projectDir}/gradle/additions/grails.gradle"
 
