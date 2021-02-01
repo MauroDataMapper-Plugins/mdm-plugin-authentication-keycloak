@@ -57,7 +57,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-plugin-url-mappings"
     compile "org.grails:grails-plugin-rest"
     compile "org.grails:grails-plugin-codecs"
@@ -76,7 +76,7 @@ dependencies {
     compile "org.hibernate:hibernate-core"
     compile "org.grails.plugins:views-json:$grailsViewsVersion"
     compile "org.grails.plugins:views-json-templates:$grailsViewsVersion"
-//    compile "org.grails.plugins:views-markup:$grailsViewsVersion"
+    //    compile "org.grails.plugins:views-markup:$grailsViewsVersion"
     compile "io.micronaut:micronaut-http-client"
     compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
@@ -90,18 +90,19 @@ dependencies {
     profile "org.grails.profiles:plugin", {
         transitive false
     }
-     profile "org.grails.profiles:base:4.1.0.OXBRC", {
+    profile "org.grails.profiles:base:4.1.0.OXBRC", {
         transitive false
     }
     provided "org.springframework.boot:spring-boot-starter-tomcat"
     runtime "org.glassfish.web:el-impl:2.1.2-b03"
-    runtime "com.h2database:h2"
+    integrationTestRuntimeOnly "com.h2database:h2"
     runtime "org.apache.tomcat:tomcat-jdbc"
     runtime "javax.xml.bind:jaxb-api:$jaxbApiVersion"
     testCompile "org.grails:grails-gorm-testing-support"
     testCompile "org.mockito:mockito-core"
     testCompile "io.micronaut:micronaut-http-client"
     testCompile "org.grails:grails-web-testing-support"
+    testCompile "org.grails:views-json-testing-support"
     //testCompile "org.grails:grails-plugin-testing"
     testCompile "io.micronaut:micronaut-http-client"
 }
@@ -138,11 +139,13 @@ grailsPublish {
 
 grails {
     plugins {
-        compile 'uk.ac.ox.softeng.maurodatamapper:mdm-core:4.0.0-SNAPSHOT'
-        compile 'uk.ac.ox.softeng.maurodatamapper:mdm-security:4.0.0-SNAPSHOT'
+        compile 'uk.ac.ox.softeng.maurodatamapper:mdm-core:4.0.0'
+        compile 'uk.ac.ox.softeng.maurodatamapper:mdm-security:4.0.0'
+        compile 'uk.ac.ox.softeng.maurodatamapper:mdm-plugin-authentication-basic:4.0.0'
     }
 }
 
 apply from: 'dependencies.gradle'
+apply from: "${projectDir}/gradle/additions/mdm.gradle"
 apply from: "${projectDir}/gradle/additions/grails.gradle"
 

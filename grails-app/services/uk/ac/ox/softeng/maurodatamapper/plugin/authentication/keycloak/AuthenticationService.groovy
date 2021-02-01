@@ -17,20 +17,49 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugin.authentication.keycloak
 
+import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiBadRequestException
 import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInternalException
+import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInvalidModelException
 import uk.ac.ox.softeng.maurodatamapper.security.CatalogueUser
 import uk.ac.ox.softeng.maurodatamapper.security.CatalogueUserService
 import uk.ac.ox.softeng.maurodatamapper.security.authentication.AuthenticationSchemeService
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import org.springframework.beans.factory.annotation.Value
 
+/**
+ * Attempt to get access token
+ * Authenticate using https://oauth.net/2/grant-types/password/
+ * Url endpoint and body content https://www.keycloak.org/docs/latest/server_admin/#troubleshooting-2
+ * https://stackoverflow.com/questions/48220504/login-to-keycloak-using-api
+ * <pre>
+ * You are effectively asking your users to trust that Application1 will manage their keycloak credentials securely. This is not recommended because
+ *
+ * better security is achieved if the user is redirected to keycloak to enter their credentials. In an ideal world no client application should be
+ * handling or have access to user credentials. It defeats the purpose of single sign in where a user should only need to enter their credentials for
+ * the first application they need to access (provided their session has not expired) But if you control and can trust Application1 and need to do
+ * this
+ * due to legacy or other reasons then you can enable the Resource Owner Credentials Flow called "Direct Access" on the Keycloak Client Definition,
+ * and then POST the user's credentials as a form-urlencoded data type to
+ *
+ * https://<keycloak-url>/auth/realms/<realm>/protocol/openid-connect/token
+
+ * The paramaters will be
+
+ * grant_type=password
+ * client_id=<Application1's client id>
+ * client_secret=<the client secret>
+ * username=<the username>
+ * password=<the password>
+ * scope=<space delimited list of scope requests>
+ * The response will be a valid JWT object or a 4xx error if the credentials are invalid.
+ * </pre>
+ */
 @Transactional
 class AuthenticationService implements AuthenticationSchemeService {
 
@@ -48,61 +77,76 @@ class AuthenticationService implements AuthenticationSchemeService {
     @Value('${keycloak.clientSecret}')
     String clientSecret
 
+    @Value('${keycloak.protocol}')
+    String protocol
+
+    @Value('${keycloak.scope}')
+    String scope
+
+    @Value('${keycloak.grantType}')
+    String grantType
+
     @Override
     String getName() {
-        'keycloak'
+        'integratedKeycloak'
     }
 
     @Override
     String getDisplayName() {
-        'Keycloak Authentication'
+        'Integrated Keycloak Authentication'
     }
 
     @Override
     CatalogueUser authenticateAndObtainUser(String emailAddress, String password) {
-
-        log.debug("Authenticating user ${emailAddress} using Keycloak authentication")
         if (!emailAddress) return null
 
-        HttpClient client = HttpClient.create(baseUrl.toURL())
-
-        HashMap<String, String> data = new HashMap<>()
-        data.put("client_id", clientId)
-        data.put("client_secret", clientSecret)
-        data.put("grant_type", "password")
-        data.put("scope", "openid")
-        data.put("username", emailAddress)
-        data.put("password", password)
+        log.debug("Authenticating user ${emailAddress} using ${displayName}")
 
         try {
-            HttpRequest request = HttpRequest.POST("realms/${realm}/protocol/openid-connect/token", data)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-
-            // TODO: Make non-blocking
-            HttpResponse<String> response = client.toBlocking().exchange(request)
-
-            CatalogueUser user = catalogueUserService.findByEmailAddress(emailAddress)
-
-            if (user == null) {
-                user = catalogueUserService.createNewUser(
-                    emailAddress: emailAddress
+            HttpClient
+                .create(baseUrl.toURL())
+                .toBlocking()
+                .exchange(
+                    HttpRequest.POST("realms/${realm}/protocol/${protocol}/token", [
+                        'client_id'    : clientId,
+                        'client_secret': clientSecret,
+                        'grant_type'   : grantType,
+                        'scope'        : scope,
+                        'username'     : emailAddress,
+                        'password'     : password,
+                    ])
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
+                        .accept(MediaType.APPLICATION_JSON_TYPE)
                 )
-            }
-
-            user
         }
         catch (HttpClientResponseException e) {
             // 401 returned if credentials invalid
-            if (e.getStatus() == HttpStatus.UNAUTHORIZED)
-                null
-            else
-                throw new ApiInternalException(e.getStatus().toString(), e.getMessage(), e)
+            switch (e.status) {
+                case HttpStatus.UNAUTHORIZED:
+                    return null
+                case HttpStatus.BAD_REQUEST:
+                    throw new ApiBadRequestException('KAS01', 'Could not authenticate against keycloak server due to a bad request')
+                default:
+                    throw new ApiInternalException('KAS02', "Could not authenticate against keycloak server: ${e.getStatus()} ${e.getMessage()}", e)
+            }
         }
+
+        CatalogueUser user = catalogueUserService.findByEmailAddress(emailAddress)
+
+        if (!user) {
+            user = catalogueUserService.createNewUser(emailAddress: emailAddress, password: null,
+                                                      createdBy: "keycloakAuthentication@${baseUrl.toURL().host}",
+                                                      pending: false, firstName: 'Unknown', lastName: 'Unknown')
+            if (!user.validate()) throw new ApiInvalidModelException('KAS03', 'Invalid user creation', user.errors)
+            user.save flush: true, validate: false
+            user.addCreatedEdit(user)
+        }
+
+        user
     }
 
     @Override
     int getOrder() {
-        LOWEST_PRECEDENCE
+        0
     }
 }
