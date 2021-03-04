@@ -17,18 +17,26 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugin.authentication.keycloak
 
-import uk.ac.ox.softeng.maurodatamapper.util.Utils
+/**
+ * @since 03/02/2021
+ */
+class KeycloakDetails {
+    String emailAddress
+    String username
+    String keycloakPassword
+    String mdmPassword
 
-import grails.boot.GrailsApp
-import grails.boot.config.GrailsAutoConfiguration
-import grails.plugins.metadata.PluginSource
-import org.springframework.context.annotation.ComponentScan
+    Map getKeycloakLoginCredentials() {
+        [
+            username: emailAddress,
+            password: keycloakPassword
+        ]
+    }
 
-@PluginSource
-@ComponentScan(basePackages = ['uk.ac.ox.softeng.maurodatamapper'])
-class Application extends GrailsAutoConfiguration {
-    static void main(String[] args) {
-        Utils.outputRuntimeArgs(Application)
-        GrailsApp.run(Application, args)
+    Map getMdmLoginCredentials() {
+        [
+            username: emailAddress,
+            password: mdmPassword
+        ]
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 University of Oxford
+ * Copyright 2020 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,44 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugin.authentication.keycloak
 
-class BootStrap {
+
+import uk.ac.ox.softeng.maurodatamapper.security.CatalogueUser
+import uk.ac.ox.softeng.maurodatamapper.security.utils.SecurityDefinition
+
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
+
+import static uk.ac.ox.softeng.maurodatamapper.util.GormUtils.checkAndSave
+
+class BootStrap implements SecurityDefinition {
+
+    @Autowired
+    MessageSource messageSource
 
     def init = {servletContext ->
+
+        environments {
+            development {
+                CatalogueUser.withNewTransaction {
+
+                    createModernSecurityUsers('development', false)
+                    checkAndSave(messageSource, editor, reader, authenticated, pending, containerAdmin, author, reviewer)
+
+                    createBasicGroups('development', false)
+                    checkAndSave(messageSource, editors, readers)
+                }
+            }
+            test {
+                CatalogueUser.withNewTransaction {
+
+                    createModernSecurityUsers('functionalTest', false)
+                    checkAndSave(messageSource, editor, reader, authenticated, pending, containerAdmin, author, reviewer)
+
+                    createBasicGroups('functionalTest', false)
+                    checkAndSave(messageSource, editors, readers)
+                }
+            }
+        }
     }
     def destroy = {
     }

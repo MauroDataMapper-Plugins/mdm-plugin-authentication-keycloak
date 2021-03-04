@@ -7,11 +7,28 @@ apiUser:
     username: admin@maurodatamapper.com
     password: password
 ---
+keycloak:
+    baseUrl: 'https://jenkins.cs.ox.ac.uk/auth/'
+    realm: 'test'
+    clientId: 'mdm'
+    clientSecret: '4b3b7290-7629-4b88-b310-df256adc8fed'
+    adminUser:
+        emailAddress: 'admin@maurodatamapper.com'
+        username: 'mdm-admin'
+        password: 'mdm-admin'
+    keycloakOnlyUser:
+        emailAddress: 'keycloak-only@maurodatamapper.com'
+        username: 'keycloak-only'
+        password: 'keycloak-only'
+---
 #Default for plugins/applications
 ---
 maurodatamapper:
     security:
         public: true
+    authority:
+        name: 'Mauro Data Mapper'
+        url: http://localhost
 grails:
     profile: rest-api-plugin
     codegen:
@@ -22,6 +39,8 @@ grails:
             # Disabled by default for performance reasons
             events: false
         failOnError: true
+    resources:
+        pattern: /**
 info:
     app:
         name: '@info.app.name@'
@@ -131,7 +150,7 @@ hibernate:
             provider: org.ehcache.jsr107.EhcacheCachingProvider
             missing_cache_strategy: create
     search:
-        default.indexBase: '/tmp/lucene/security'
+        default.indexBase: '/tmp/lucene/plugin/authentication/keycloak'
 
 ---
 dataSource:
@@ -146,32 +165,18 @@ dataSource:
 environments:
     test:
         spring.flyway.enabled: false
+        database:
+            name: 'mpakTest'
+            creation: 'CREATE SCHEMA IF NOT EXISTS core\;CREATE SCHEMA IF NOT EXISTS security'
         dataSource:
             driverClassName: org.h2.Driver
             dialect: org.hibernate.dialect.H2Dialect
             username: sa
             password: ''
             dbCreate: create
-            url: 'jdbc:h2:mem:${database.name};MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=${database.creation}'
-        keycloak:
-            baseUrl: 'https://jenkins.cs.ox.ac.uk/auth/'
-            realm: 'test'
-            clientId: 'mdm'
-            clientSecret: '7e8f6c85-d011-4c52-ac73-fc1acefc0863'
-            admin:
-                realm: 'test'
-                username: 'mdm-admin'
-                password: 'mdm-admin'
-                clientId: 'mdm'
-                clientSecret: '7e8f6c85-d011-4c52-ac73-fc1acefc0863'
-
+            url: 'jdbc:h2:mem:${database.name};LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=${database.creation}'
     development:
         dataSource:
             username: maurodatamapper
             password: MauroDataMapper1234
-        keycloak:
-            baseUrl: 'https://jenkins.cs.ox.ac.uk/auth'
-            realm: 'test'
-            clientId: 'mdm'
-            clientSecret: '7e8f6c85-d011-4c52-ac73-fc1acefc0863'
 ---

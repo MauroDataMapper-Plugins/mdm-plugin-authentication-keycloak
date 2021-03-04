@@ -33,8 +33,8 @@ pipeline {
         stage('Info') {
             steps {
                 sh './gradlew -v' // Output gradle version for verification checks
-                sh './gradlew jvmArgs'
-                sh './gradlew sysProps'
+                sh './gradlew jvmArgs sysProps'
+                sh './grailsw -v' // Output grails version for verification checks
             }
         }
 
@@ -45,22 +45,32 @@ pipeline {
             }
         }
 
-
-        stage('Functional Test') {
-
+        stage('License Header Check') {
             steps {
-                sh "./grailsw -Dgrails.functionalTest=true test-app -integration"
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: 'build/test-results/functionalTest/*.xml'
+                warnError('Missing License Headers') {
+                    sh './gradlew --build-cache license'
                 }
             }
         }
 
-        stage('License Header Check') {
+        stage('Functional Test') {
+
             steps {
-                sh './gradlew license'
+                sh "./grailsw -Dgradle.functionalTest=true test-app -integration"
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'build/test-results/functionalTest/*.xml'
+                    publishHTML([
+                        allowMissing         : false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'build/reports/tests',
+                        reportFiles          : 'index.html',
+                        reportName           : 'Test Report',
+                        reportTitles         : 'Test'
+                    ])
+                }
             }
         }
     }
