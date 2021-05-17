@@ -97,10 +97,10 @@ class AuthenticationService implements AuthenticationSchemeService {
     }
 
     @Override
-    CatalogueUser authenticateAndObtainUser(String emailAddress, String password) {
-        if (!emailAddress) return null
+    CatalogueUser authenticateAndObtainUser(Map<String, Object> authenticationInformation) {
+        if (!authenticationInformation.username) return null
 
-        log.debug("Authenticating user ${emailAddress} using ${displayName}")
+        log.debug("Authenticating user ${authenticationInformation.username} using ${displayName}")
 
         try {
             HttpClient
@@ -112,8 +112,8 @@ class AuthenticationService implements AuthenticationSchemeService {
                         'client_secret': clientSecret,
                         'grant_type'   : grantType,
                         'scope'        : scope,
-                        'username'     : emailAddress,
-                        'password'     : password,
+                        'username'     : authenticationInformation.username,
+                        'password'     : authenticationInformation.password,
                     ])
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
                         .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -131,10 +131,10 @@ class AuthenticationService implements AuthenticationSchemeService {
             }
         }
 
-        CatalogueUser user = catalogueUserService.findByEmailAddress(emailAddress)
+        CatalogueUser user = catalogueUserService.findByEmailAddress(authenticationInformation.username)
 
         if (!user) {
-            user = catalogueUserService.createNewUser(emailAddress: emailAddress, password: null,
+            user = catalogueUserService.createNewUser(emailAddress: authenticationInformation.username, password: null,
                                                       createdBy: "keycloakAuthentication@${baseUrl.toURL().host}",
                                                       pending: false, firstName: 'Unknown', lastName: 'Unknown')
             if (!user.validate()) throw new ApiInvalidModelException('KAS03', 'Invalid user creation', user.errors)
