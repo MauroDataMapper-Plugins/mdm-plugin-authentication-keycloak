@@ -34,8 +34,7 @@ apply plugin: "org.grails.plugins.views-json"
 //apply plugin: "org.grails.plugins.views-markup"
 apply plugin: "com.github.hierynomus.license"
 
-apply plugin: 'ox.softeng.ox-brc-base'
-apply plugin: 'ox.softeng.ox-brc-artifactory'
+apply plugin: 'ox.softeng.grails'
 
 repositories {
     mavenLocal()
@@ -147,5 +146,5 @@ grails {
 
 apply from: 'dependencies.gradle'
 apply from: "${projectDir}/gradle/additions/mdm.gradle"
-apply from: "${projectDir}/gradle/additions/grails.gradle"
+apply from: "${projectDir}/gradle/additions/staticCodeAnalysis.gradle"
 
