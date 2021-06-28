@@ -136,7 +136,8 @@ class AuthenticationService implements AuthenticationSchemeService {
         if (!user) {
             user = catalogueUserService.createNewUser(emailAddress: authenticationInformation.username, password: null,
                                                       createdBy: "keycloakAuthentication@${baseUrl.toURL().host}",
-                                                      pending: false, firstName: 'Unknown', lastName: 'Unknown')
+                                                      pending: false, firstName: 'Unknown', lastName: 'Unknown',
+                                                      creationMethod: 'Keycloak-Integrated-Security')
             if (!user.validate()) throw new ApiInvalidModelException('KAS03', 'Invalid user creation', user.errors)
             user.save flush: true, validate: false
             user.addCreatedEdit(user)
