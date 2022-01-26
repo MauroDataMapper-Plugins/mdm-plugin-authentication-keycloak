@@ -1,16 +1,17 @@
 dependencies {
 
-    compile group: 'org.apache.commons', name: 'commons-rng-simple', version: commonsRngVersion
+    implementation "io.micronaut:micronaut-http-client"
+    implementation group: 'org.apache.commons', name: 'commons-rng-simple', version: commonsRngVersion
 
     runtimeOnly "io.methvin:directory-watcher", {
         exclude group: 'com.google.guava', module: 'guava'
     }
 
     // Postgres database
-    runtime group: 'org.flywaydb', name: 'flyway-core'
-    runtime "org.hibernate:hibernate-jcache"
-    runtime group: 'org.ehcache', name: 'ehcache'
-    runtime group: 'org.postgresql', name: 'postgresql'
+    runtimeOnly group: 'org.flywaydb', name: 'flyway-core'
+    runtimeOnly "org.hibernate:hibernate-jcache"
+    runtimeOnly group: 'org.ehcache', name: 'ehcache'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
     testImplementation "uk.ac.ox.softeng.maurodatamapper:mdm-testing-framework:$mdmCoreVersion"
 }
