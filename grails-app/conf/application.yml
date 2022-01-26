@@ -3,10 +3,7 @@ database:
     port: 5432
     name: maurodatamapper
 ---
-apiUser:
-    username: admin@maurodatamapper.com
-    password: password
----
+
 keycloak:
     baseUrl: 'https://jenkins.cs.ox.ac.uk/auth/'
     realm: 'test'
@@ -150,7 +147,7 @@ hibernate:
             provider: org.ehcache.jsr107.EhcacheCachingProvider
             missing_cache_strategy: create
     search:
-        default.indexBase: '/tmp/lucene/plugin/authentication/keycloak'
+        backend.directory.root: 'build/lucene'
 
 ---
 dataSource:
