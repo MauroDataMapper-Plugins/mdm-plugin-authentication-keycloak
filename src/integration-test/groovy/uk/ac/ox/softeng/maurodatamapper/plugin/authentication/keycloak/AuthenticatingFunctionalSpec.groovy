@@ -25,6 +25,7 @@ import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
 import grails.testing.mixin.integration.Integration
 import grails.testing.spock.OnceBefore
+import grails.testing.spock.RunOnce
 import groovy.util.logging.Slf4j
 import spock.lang.Shared
 import spock.lang.Stepwise
@@ -63,9 +64,9 @@ class AuthenticatingFunctionalSpec extends BaseFunctionalSpec {
     @Shared
     KeycloakDetails mdmOnlyDetails
 
-    @OnceBefore
     @Transactional
-    def checkAndSetupData() {
+    @RunOnce
+    def setup() {
         keycloakConfig = grailsApplication.config.keycloak as Map
 
         adminDetails = new KeycloakDetails(emailAddress: keycloakConfig.adminUser.emailAddress,
