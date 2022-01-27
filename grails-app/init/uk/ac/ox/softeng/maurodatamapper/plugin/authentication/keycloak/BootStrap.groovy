@@ -38,7 +38,7 @@ class BootStrap implements SecurityDefinition {
                 CatalogueUser.withNewTransaction {
 
                     createModernSecurityUsers('development', false)
-                    checkAndSave(messageSource, editor, reader, authenticated, pending, containerAdmin, author, reviewer)
+                    checkAndSave(messageSource, editor, reader, authenticated, pending, containerAdmin, author, reviewer,creator)
 
                     createBasicGroups('development', false)
                     checkAndSave(messageSource, editors, readers)
@@ -48,7 +48,7 @@ class BootStrap implements SecurityDefinition {
                 CatalogueUser.withNewTransaction {
 
                     createModernSecurityUsers('functionalTest', false)
-                    checkAndSave(messageSource, editor, reader, authenticated, pending, containerAdmin, author, reviewer)
+                    checkAndSave(messageSource, editor, reader, authenticated, pending, containerAdmin, author, reviewer, creator)
 
                     createBasicGroups('functionalTest', false)
                     checkAndSave(messageSource, editors, readers)
