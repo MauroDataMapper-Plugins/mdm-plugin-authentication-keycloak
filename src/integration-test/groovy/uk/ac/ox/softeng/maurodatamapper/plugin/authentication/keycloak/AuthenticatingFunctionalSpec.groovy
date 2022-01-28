@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
+ * Copyright 2020-2022 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
 import grails.testing.mixin.integration.Integration
 import grails.testing.spock.OnceBefore
+import grails.testing.spock.RunOnce
 import groovy.util.logging.Slf4j
 import spock.lang.Shared
 import spock.lang.Stepwise
@@ -63,9 +64,9 @@ class AuthenticatingFunctionalSpec extends BaseFunctionalSpec {
     @Shared
     KeycloakDetails mdmOnlyDetails
 
-    @OnceBefore
     @Transactional
-    def checkAndSetupData() {
+    @RunOnce
+    def setup() {
         keycloakConfig = grailsApplication.config.keycloak as Map
 
         adminDetails = new KeycloakDetails(emailAddress: keycloakConfig.adminUser.emailAddress,
