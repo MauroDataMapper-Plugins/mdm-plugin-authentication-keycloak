@@ -8,7 +8,7 @@
 ## Requirements
 
 * Java 17 (Temurin)
-* Grails 5.1.7+
+* Grails 5.1.9+
 * Gradle 7.3.3+
 
 ## Url Mappings Report
@@ -31,7 +31,7 @@ In the `docker-compose.yml` file add:
 mauro-data-mapper:
     build:
         args:
-            ADDITIONAL_PLUGINS: "uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-authentication-keycloak:3.1.0"
+            ADDITIONAL_PLUGINS: "uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-authentication-keycloak:3.3.0"
 ```
 
 Please note, if adding more than one plugin, this is a semicolon-separated list
@@ -43,7 +43,7 @@ In the `build.gradle` file add:
 ```groovy
 grails {
     plugins {
-        runtimeOnly 'uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-authentication-keycloak:3.1.0'
+        runtimeOnly 'uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-authentication-keycloak:3.3.0'
     }
 }
 ```
